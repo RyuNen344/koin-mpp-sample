@@ -36,6 +36,9 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-native-mt")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
                 implementation("io.ktor:ktor-client-core:1.6.1")
+                implementation("io.ktor:ktor-client-logging:1.6.1")
+                implementation("io.ktor:ktor-client-json:1.6.1")
+                implementation("io.ktor:ktor-client-serialization:1.6.1")
             }
         }
         val commonTest by getting {
@@ -47,7 +50,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1-native-mt")
-                implementation("io.ktor:ktor-client-android:1.6.1")
+                implementation("io.ktor:ktor-client-okhttp:1.6.1")
             }
         }
         val androidTest by getting {
