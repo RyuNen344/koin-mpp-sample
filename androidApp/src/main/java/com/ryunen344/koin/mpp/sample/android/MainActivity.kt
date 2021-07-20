@@ -1,20 +1,18 @@
 package com.ryunen344.koin.mpp.sample.android
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.ryunen344.koin.mpp.sample.Greeting
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-fun greet(): String {
-    return Greeting().greeting()
-}
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private val viewModel : MainViewModel by viewModel()
+
+    override fun onCreate(savedInstanceState : Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        val tv: TextView = findViewById(R.id.text_view)
-        tv.text = greet()
+        val tv : TextView = findViewById(R.id.text_view)
+        tv.text = viewModel.getStringFromKmm()
     }
 }

@@ -3,6 +3,7 @@
     package="com.ryunen344.koin.mpp.sample.android">
 
     <application
+        android:name=".KoinApplication"
         android:allowBackup="false"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -15,4 +16,4 @@
             </intent-filter>
         </activity>
     </application>
-</manifest> 
+</manifest>
