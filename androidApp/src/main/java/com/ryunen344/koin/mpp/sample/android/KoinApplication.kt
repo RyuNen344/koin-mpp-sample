@@ -1,6 +1,8 @@
 package com.ryunen344.koin.mpp.sample.android
 
 import android.app.Application
+import com.ryunen344.koin.mpp.sample.di.apiModule
+import com.ryunen344.koin.mpp.sample.di.expectModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -16,7 +18,9 @@ class KoinApplication : Application() {
             modules(
                 module {
                     viewModel<MainViewModel>()
-                }
+                },
+                apiModule,
+                expectModule
             )
         }
     }
