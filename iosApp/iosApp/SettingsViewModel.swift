@@ -10,6 +10,7 @@ class SettingsViewModel: ObservableObject {
     }
     
     func getSystemInfo() -> String {
+        NapierExt.d(message: "\(settingsRepository)", throwable: nil, tag_: nil)
         return settingsRepository.getSystemInfo()
     }
 }

@@ -10,13 +10,14 @@ import kotlinx.cinterop.getOriginalKotlinClass
 import org.koin.core.Koin
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.Qualifier
 
 @Suppress("UNUSED")
 fun initKoin() : KoinApplication {
     return startKoin {
-        napierLogger()
+        napierLogger(Level.DEBUG)
         modules(
             apiModule,
             expectModule,
