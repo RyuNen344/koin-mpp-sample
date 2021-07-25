@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -65,6 +66,15 @@ kotlin {
             }
         }
         val iosTest by getting
+    }
+
+    // Configure the framework which is generated internally by cocoapods plugin
+    targets.withType<KotlinNativeTarget> {
+        binaries.withType<Framework> {
+            export("io.insert-koin:koin-core:3.1.2")
+            export("io.github.aakira:napier:1.5.0")
+            export("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-native-mt")
+        }
     }
 }
 
