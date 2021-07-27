@@ -10,6 +10,4 @@ val scopedModule = module {
         // scope毎に生成されるinstance
         scoped { InstancePrinter() }
     }
-
-    // androidのviewModelはviewModelStoreOwnerの
 }
