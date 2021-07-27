@@ -76,6 +76,9 @@ class iOSApp: App {
     }
 
     private func printQualifiedInstance() {
+        let unusedExtension = koinApplication.koin.get(objCClass: InstancePrinter.self, qualifier: nil) as! InstancePrinter
+        unusedExtension.print()
+
         NapierExt.d(message: "singleton start", throwable: nil, tag_: nil)
         let singletone1: InstancePrinter = koinApplication.get(klass: InstancePrinter.self)
         singletone1.print()
