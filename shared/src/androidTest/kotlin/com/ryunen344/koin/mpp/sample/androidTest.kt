@@ -1,11 +1,25 @@
 package com.ryunen344.koin.mpp.sample
 
+import com.ryunen344.koin.mpp.sample.di.scopedModule
+import io.mockk.mockkClass
+import org.junit.Rule
 import org.junit.Test
+import org.koin.test.KoinTest
+import org.koin.test.check.checkModules
+import org.koin.test.mock.MockProviderRule
 
-class AndroidGreetingTest {
+class CheckModuleTest : KoinTest {
+    @get:Rule
+    val mockProvider = MockProviderRule.create { clazz ->
+        mockkClass(clazz)
+    }
 
     @Test
     fun testExample() {
-//        assertTrue("Check Android is mentioned", Greeting().greeting().contains("Android"))
+        checkModules {
+            modules(
+                scopedModule
+            )
+        }
     }
 }

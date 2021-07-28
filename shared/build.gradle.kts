@@ -46,6 +46,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+                implementation("io.insert-koin:koin-test:3.1.2")
             }
         }
         val androidMain by getting {
@@ -58,6 +59,8 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-junit"))
                 implementation("junit:junit:4.13.2")
+                implementation("io.insert-koin:koin-test-junit4:3.1.2")
+                implementation("io.mockk:mockk:1.12.0")
             }
         }
         val iosMain by getting {
