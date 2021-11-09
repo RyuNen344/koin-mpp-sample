@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 31
     defaultConfig {
         applicationId = "com.ryunen344.koin.mpp.sample.android"
-        minSdkVersion(29)
-        targetSdkVersion(30)
+        minSdk = 29
+        targetSdk = 31
         versionCode = 1
         versionName = "1.0"
     }

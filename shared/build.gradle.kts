@@ -25,7 +25,9 @@ kotlin {
         summary = "kotlin multiplatform koin"
         homepage = "https://github.com/RyuNen344"
         ios.deploymentTarget = "14.1"
-        frameworkName = "shared"
+        framework {
+            baseName = "shared"
+        }
         podfile = project.file("../iosApp/Podfile")
     }
 
@@ -82,10 +84,10 @@ kotlin {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 31
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdkVersion(29)
-        targetSdkVersion(30)
+        minSdk = 29
+        targetSdk = 31
     }
 }
