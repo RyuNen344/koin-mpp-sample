@@ -24,7 +24,7 @@ kotlin {
     cocoapods {
         summary = "kotlin multiplatform koin"
         homepage = "https://github.com/RyuNen344"
-        ios.deploymentTarget = "14.1"
+        ios.deploymentTarget = "14.2"
         framework {
             baseName = "shared"
         }
