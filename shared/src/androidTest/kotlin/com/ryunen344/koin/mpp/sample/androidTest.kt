@@ -5,7 +5,7 @@ import io.mockk.mockkClass
 import org.junit.Rule
 import org.junit.Test
 import org.koin.test.KoinTest
-import org.koin.test.check.checkModules
+import org.koin.test.check.checkKoinModules
 import org.koin.test.mock.MockProviderRule
 
 class CheckModuleTest : KoinTest {
@@ -16,10 +16,6 @@ class CheckModuleTest : KoinTest {
 
     @Test
     fun testExample() {
-        checkModules {
-            modules(
-                scopedModule
-            )
-        }
+        checkKoinModules(scopedModule)
     }
 }
