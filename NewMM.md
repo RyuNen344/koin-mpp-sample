@@ -130,8 +130,38 @@ Platform.isMemoryLeakCheckerActive = true
 # Kotlin Native Update
 
 - [5月mm update](https://blog.jetbrains.com/kotlin/2021/05/kotlin-native-memory-management-update/)
-  - sdafdsa
-- [KT-42296](https://youtrack.jetbrains.com/issue/KT-42296)
+  - GCの大まかな種類
+    - Reference-counting garbage collection
+      - オブジェクト・グラフのリーフから始まり、特定のメモリ領域への参照数を追跡します。プログラムで使用されている生きたオブジェクトは、ゼロではない参照カウントを持つことになります。
+    - Tracing garbage collection
+      - オブジェクトグラフのルートから始まり、グラフをトラバースしてすべての生きているオブジェクトを特定します。プログラムで使用されていない死んだオブジェクトには到達しません。
+      - 一定のタイミングでGCが走る、Full GCのタイミングがあり、その瞬間処理が止まるのでStop The Worldとか呼ばれる(JVM)
+  - iOSのMemory Management
+    - ARC(Automatic Reference Counting)
+    - 強参照がなくなった瞬間にメモリ解放される
+    - NSObjectクラスが参照の数を管理するフィールドを持っており、compileタイムにカウントする処理を仕込む
+    - クラスに触る際にカウントをインクリメント、デクリメントする処理が入るためループ等になるとオーバーヘッドがある
+    - [Swift Doc](https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html)
+    - [Objective C GNU版 Doc](https://clang.llvm.org/docs/AutomaticReferenceCounting.html)
+　- 現状のKotlin/NativeのGCはどうなっているのか
+  　- 遅延参照カウントGC(deferred reference-counting garbage collector)
+  　- シンプルなため選択したが、開発効率悪化に影響している状態
+  　- 他にも問題あり
+    　- 一時停止がないわけではない　割り当て解除を延期してグループ化してオーバーヘッドを削減しようとすると一時停止の頻度は減るが処理時間が長くなる
+    　- コレクターはアプリの重要なスレッドのブロックを回避しなければならないので安易にバックグラウンドスレッドに移動できない(だから現状freezeメソッドとかがある)
+    　- Tracing garbage collectionのほうがはるかに柔軟だしマルチスレッドプログラミングで使用しやすいがcompile timeとrun timeで複雑なインフラを構築しなければならないのが弱点
+　- 新しいKotlin/NativeのGCはどうなるのか
+  　- Tracing garbage collection
+  　- 複雑な仕組みが必要
+    　- UIアプリケーションはレイテンシーに敏感なメインスレッドを持っているので、Stop-the-WorldのガベージコレクションしかサポートしていないデザインはKotlin/Nativeではダメ
+  　- 他にはリーク時のtracability, weak referenceのsupport, kotlinのクラスがplatformのobjectに割り当てられた際の参照解放方法の提供を目的としている
+  　- 現在は単純なa simple stop-the-world mark and sweep garbage collectorを実装している
+    　- 本番には乗らないがテストで使用することで問題点を洗い出す狙い
+    　- 上記のCore実装の致命的なバグを発見しておきたい
+  　- マルチスレッド対応のTrace Garbage Collectorを作成してcoroutineに適用してテストしていく予定
+  　- 実装できたらパフォーマンスとかも気にしていく予定
+
+- [Prototype Garbage Collector KT-42296](https://youtrack.jetbrains.com/issue/KT-42296)
   - 実際のプロジェクトで使用できる、単純なストップザワールドマークアンドスイープGCの実装が完了しました。これまでに欠落していたすべてのコンポーネントが含まれるようになりました。外部コードを実行するスレッドの追跡、GCスレッドとKotlinスレッド間の同期、GCトリガーです。
   - また、実際にはガベージを収集しないno-opGCも実装しました。調査や診断の目的に役立つ場合があります。
   - 新しいガベージコレクタは、新しいメモリマネージャの基盤を提供します。これにより、オブジェクトの共有とトップレベルのプロパティへのアクセスに関する厳格な制限を解除できます。新しいメモリマネージャーを有効にすると、フリーズしなくても、どのスレッドからでもすべてのオブジェクトとプロパティにアクセスできます。
@@ -156,3 +186,6 @@ Platform.isMemoryLeakCheckerActive = true
 Garbage collection and reference counting﻿
 Objective-C and Swift use reference counting. Kotlin/Native has its own garbage collection too. Kotlin/Native garbage collection is integrated with Objective-C/Swift reference counting. You do not need to use anything special to control the lifetime of Kotlin/Native instances from Swift or Objective-C.
 ```
+
+
+[SwfitとKotlinのMMの違い](https://blog.indoorway.com/swift-vs-kotlin-the-differences-in-memory-management-860828edf8)
