@@ -171,16 +171,18 @@ Platform.isMemoryLeakCheckerActive = true
   - 次のステップは、新しいメモリマネージャをAlphaKT-49520に昇格させることです。
   - gcのalgorighmはsingle thread stop the world weap algorithmになった
   - パフォーマンスが悪いので目下の課題として取り組んでいる
+
 - [8月preview release blog](https://blog.jetbrains.com/kotlin/2021/08/try-the-new-kotlin-native-memory-manager-development-preview/)
   - 新しいKotlin/Nativeの自動メモリマネージャは、スレッド間のオブジェクト共有に関する既存の制限を解除し、完全にリークフリーなコンカレントプログラミングのプリミティブを提供します。このプリミティブは安全で、開発者による特別な管理やアノテーションを必要としません。
   - 新しいバージョンのcoroutineとktorはすでに対応済みなのでfreezeなしでbackgroundで動作するobjectをfreezeなしで触れる
+  - AtomicReferenceを使用している場合だけはfreezeが必要
   - sampleがある[Repository](https://github.com/Kotlin/kmm-production-sample/tree/new-mm-demo)
   - hands onも更新されてる [リンク](https://github.com/kotlin-hands-on/KNConcurrencyHandson/tree/new-mm-demo)
+  - freeze
+  - 同時マークスイープ等のさらに効率的なアルゴリズムも検討している
   - gradle.propetiesに*kotlin.native.binary.memoryModel=experimental*を追加すると使える
 - [Migration Guide](https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md)
 - [Concurrencyの現状](https://kotlinlang.org/docs/kmm-concurrency-overview.html)
-
-
 
 ```
 Garbage collection and reference counting﻿
