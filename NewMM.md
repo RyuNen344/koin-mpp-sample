@@ -186,12 +186,79 @@ Platform.isMemoryLeakCheckerActive = true
   - concurrent mark-sweep等のさらに効率的なアルゴリズムも検討している
   - gradle.propetiesに*kotlin.native.binary.memoryModel=experimental*を追加すると使える
 - [Migration Guide](https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md)
-  - トップレベルプロパティに`@SharedImmutable`を付与しなくてもプロパティにアクセスして変更できるようになった
-  - スレッドを跨いだオブジェクト操作の際に`freeze`しなくてよくなった
-  - `Worker.executeAfter`は操作の`freeze`が不要になった
-  - `Worker.execute`はproducerがisolateなオブジェクトのサブグラフを返す必要がなくなった
-  - `AtomicReference`, `FreezableAtomicReference`の参照サイクルがメモリーリークを起こさなくなった
-
+  - 概要
+    - トップレベルプロパティに`@SharedImmutable`を付与しなくてもプロパティにアクセスして変更できるようになった
+    - スレッドを跨いだオブジェクト操作の際に`freeze`しなくてよくなった
+    - `Worker.executeAfter`は操作の`freeze`が不要になった
+    - `Worker.execute`はproducerがisolateなオブジェクトのサブグラフを返す必要がなくなった
+    - `AtomicReference`, `FreezableAtomicReference`の参照サイクルがメモリーリークを起こさなくなった
+    - Swift/Objective-C instanceの`deinit`はKotlin Native側に渡ると別スレッドで呼ばれる
+    - SwiftからKotlinのsuspend funを呼び出す場合、メインスレッド以外でCompletion Handlerが呼び出されることがある
+    - グローバルプロパティは定義されているファイルに最初にアクセスしたときに遅延初期化される(これまではプログラム起動時に初期化されていた)
+    - これまで通りプログラム起動時に初期化されなければならないものに関しては`@EagerInitialization`を付与する
+    - Kotlin/Jvmと同じように`by lazy{}`がスレッドセーフモードをサポートする
+  - 有効化方法
+    - `-Xbinary=memoryModel=experimental`を付けてビルドする
+    - `gradle.properties`に`kotlin.native.binary.memoryModel=experimental`を追加する
+    - build.gradleで設定する
+        ```kotlin
+        kotlin.targets.withType(KotlinNativeTarget::class.java) {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+        ```
+    - `kotlin.native.isExperimentalMM()`がtrueだったら有効化されてる
+  - ライブラリ更新
+    - spaceのmvn機能で配布されてるのでそれを使う
+    - 大体`new-mm`のsuffixがついてる(`native-mt`版じゃないよ！)
+    - ライブラリのオブジェクトはfreezeが透過的に適用されます。例えば，Channelをfreezeすると，内部がすべてfreezeしてしまい，期待通りの動作ができなくなります。特に、ChannelをCaptureしているものをfreezeすると、このような現象が起こります。
+    - Dispatchers.Defaultは、LinuxとWindowsではWorkerのプールによって、Appleターゲットではグローバルキューによってバックアップされます。
+    - `newSingleThreadContext`を使うと，Workerをバックにしたコルーチンディスパッチャを作成できる
+    - `newFixedThreadPoolContext`は，任意の数のWorkerのプールをバックにしたコルーチンディスパッチャを作成できる
+    - `Dispatchers.Main`は、Darwinではメインキュー、その他のプラットフォームではスタンドアロンのWorkerがバックになります。ユニットテストでは、何もメインスレッドキューを処理しないので、ユニットテストで`Dispatchers.Main`を使用しないように
+  - 古いライブラリを使う場合
+    - 以前のMMと同じ動きをする
+    - よくある例外はデフォルトエンジンでHttpClientのインスタンス生成すると👇みたいなException投げる
+    - `kotlin.IllegalStateException: Failed to find HttpClientEngineContainer. Consider adding [HttpClientEngine] implementation in dependencies`
+    - 起きないようにするには他のサポートされてるエンジンに置き換えてみよう
+    - Known issues:SQLDelight: https://github.com/cashapp/sqldelight/issues/2556
+  - Perfomance issue
+    - 今のPreviewは`stop-the-world mark-and-sweep`gcなのでそれなりな数の関数、ループ、割り当てが実行されないとトリガーされないのでパフォーマンスを阻害してしまう
+    - 最優先事項として現在取り組んでる
+    - GCのパフォーマンスをモニターする良い仕組みがないのでログを出すしかない
+        ```kotlin
+        kotlin.targets.withType(KotlinNativeTarget::class.java) {
+            binaries.all {
+                freeCompilerArgs += "-Xruntime-logs=gc=info"
+            }
+        }
+        ```
+    - 現在ログはstderrにのみ出力される
+    - GCはsingle threadのstop the worldなのですべてのスレッドの一時停止時間はヒープ内のオブジェクトの数に依存する
+    - 一時停止の時間とヒープ内のオブジェクト数は、GCサイクルごとにログに出力されます
+    - Kotlin/Nativeランタイムが有効なすべてのスレッドが、コレクションを開始するために同時に同期する必要があるということでもあります。これは一時停止の時間にも影響します。
+    - Swift/ObjCの相互運用の境界を越えるいくつかの一時的なオブジェクトを作成する場合（例えば、SwiftのループからKotlinのコールバックを呼び出す場合や、その逆の場合）は必要以上に長くヒープに残っちゃう
+    - autoreleasepoolとかを駆使してなんとかしてくれｗ
+    - GCが頻繁に起こる場合は`kotlin.native.internal.GC.threshold`と`kotlin.native.internal.GC.thresholdAllocations`を増やして頻度を下げてみて(ここら辺のAPIは将来変わるかも)
+  - バグ
+    - compiler cacheがサポートされていないのでデバッグバイナリのcompileに時間かかる；；
+    - iOSはアプリケーションの状態(バックグラウンドとか)を扱う機能がないので現状バックグラウンドをキックにGCを走らせることができないです。そのためメモリ圧迫が続いてOSにキルされる確立が高まります
+    - WASM非対応
+  - Workarounds
+    - 予期せぬフリーズ
+      - ライブラリ側がnew MMに対応してなくて`InvalidMutabilityException`や`FreezingException`が起こるかもしれない
+      - `freezing`オプションを追加した
+        - comiple optionに`-Xbinary=freezing=disabled`
+        - gradle.propertiesに`kotlin.native.binary.freezing=disabled`
+        - build.gradleに追記
+          ```kotlin
+          kotlin.targets.withType(KotlinNativeTarget::class.java) {
+            binaries.all {
+                binaryOptions["freezing"] = "disabled" or "explicitOnly"
+            }
+          }
+          ```
 
 - [Concurrencyの現状](https://kotlinlang.org/docs/kmm-concurrency-overview.html)
 
@@ -199,6 +266,5 @@ Platform.isMemoryLeakCheckerActive = true
 Garbage collection and reference counting﻿
 Objective-C and Swift use reference counting. Kotlin/Native has its own garbage collection too. Kotlin/Native garbage collection is integrated with Objective-C/Swift reference counting. You do not need to use anything special to control the lifetime of Kotlin/Native instances from Swift or Objective-C.
 ```
-
 
 [SwfitとKotlinのMMの違い](https://blog.indoorway.com/swift-vs-kotlin-the-differences-in-memory-management-860828edf8)
