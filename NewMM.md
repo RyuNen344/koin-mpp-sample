@@ -143,30 +143,34 @@ Platform.isMemoryLeakCheckerActive = true
     - クラスに触る際にカウントをインクリメント、デクリメントする処理が入るためループ等になるとオーバーヘッドがある
     - [Swift Doc](https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html)
     - [Objective C GNU版 Doc](https://clang.llvm.org/docs/AutomaticReferenceCounting.html)
-　- 現状のKotlin/NativeのGCはどうなっているのか
-  　- 遅延参照カウントGC(deferred reference-counting garbage collector)
-  　- シンプルなため選択したが、開発効率悪化に影響している状態
-  　- 他にも問題あり
-    　- 一時停止がないわけではない　割り当て解除を延期してグループ化してオーバーヘッドを削減しようとすると一時停止の頻度は減るが処理時間が長くなる
-    　- コレクターはアプリの重要なスレッドのブロックを回避しなければならないので安易にバックグラウンドスレッドに移動できない(だから現状freezeメソッドとかがある)
-    　- Tracing garbage collectionのほうがはるかに柔軟だしマルチスレッドプログラミングで使用しやすいがcompile timeとrun timeで複雑なインフラを構築しなければならないのが弱点
-　- 新しいKotlin/NativeのGCはどうなるのか
-  　- Tracing garbage collection
-  　- 複雑な仕組みが必要
-    　- UIアプリケーションはレイテンシーに敏感なメインスレッドを持っているので、Stop-the-WorldのガベージコレクションしかサポートしていないデザインはKotlin/Nativeではダメ
-  　- 他にはリーク時のtracability, weak referenceのsupport, kotlinのクラスがplatformのobjectに割り当てられた際の参照解放方法の提供を目的としている
-  　- 現在は単純なa simple stop-the-world mark and sweep garbage collectorを実装している
-    　- 本番には乗らないがテストで使用することで問題点を洗い出す狙い
-    　- 上記のCore実装の致命的なバグを発見しておきたい
-  　- マルチスレッド対応のTrace Garbage Collectorを作成してcoroutineに適用してテストしていく予定
-  　- 実装できたらパフォーマンスとかも気にしていく予定
+  - 現状のKotlin/NativeのGCはどうなっているのか
+    - 遅延参照カウントGC(deferred reference-counting garbage collector)
+    - シンプルなため選択したが、開発効率悪化に影響している状態
+    - 他にも問題あり
+      - 一時停止がないわけではない　割り当て解除を延期してグループ化してオーバーヘッドを削減しようとすると一時停止の頻度は減るが処理時間が長くなる
+      - コレクターはアプリの重要なスレッドのブロックを回避しなければならないので安易にバックグラウンドスレッドに移動できない(だから現状freezeメソッドとかがある)
+      - Tracing garbage collectionのほうがはるかに柔軟だしマルチスレッドプログラミングで使用しやすいがcompile timeとrun timeで複雑なインフラを構築しなければならないのが弱点
+  - 新しいKotlin/NativeのGCはどうなるのか
+    - Tracing garbage collection
+    - 複雑な仕組みが必要
+      - UIアプリケーションはレイテンシーに敏感なメインスレッドを持っているので、Stop-the-WorldのガベージコレクションしかサポートしていないデザインはKotlin/Nativeではダメ
+      - 他にはリーク時のtracability, weak referenceのsupport, kotlinのクラスがplatformのobjectに割り当てられた際の参照解放方法の提供を目的としている
+  - 現在は単純なa simple stop-the-world mark and sweep garbage collectorを実装している
+    - 本番には乗らないがテストで使用することで問題点を洗い出す狙い
+    - 上記のCore実装の致命的なバグを発見しておきたい
+    - マルチスレッド対応のTrace Garbage Collectorを作成してcoroutineに適用してテストしていく予定
+    - 実装できたらパフォーマンスとかも気にしていく予定
 
 - [Prototype Garbage Collector KT-42296](https://youtrack.jetbrains.com/issue/KT-42296)
-  - 実際のプロジェクトで使用できる、単純なストップザワールドマークアンドスイープGCの実装が完了しました。これまでに欠落していたすべてのコンポーネントが含まれるようになりました。外部コードを実行するスレッドの追跡、GCスレッドとKotlinスレッド間の同期、GCトリガーです。
-  - また、実際にはガベージを収集しないno-opGCも実装しました。調査や診断の目的に役立つ場合があります。
-  - 新しいガベージコレクタは、新しいメモリマネージャの基盤を提供します。これにより、オブジェクトの共有とトップレベルのプロパティへのアクセスに関する厳格な制限を解除できます。新しいメモリマネージャーを有効にすると、フリーズしなくても、どのスレッドからでもすべてのオブジェクトとプロパティにアクセスできます。
+  - Simple Stop The World mark and sweep GCの実装完了
+  - 今まで不足していた外部コードの実行スレッドの追跡、GCとKotlinのスレッドの同期、GCトリガーなどが含まれた
+  - 実際にはガベージを収集しないno-opGCも実装した 調査や診断の目的に役立つ場合がある
+  - 新しいガベージコレクタは、新しいメモリマネージャの基盤を提供します。
+  - オブジェクトの共有とトップレベルのプロパティへのアクセスに関する厳格な制限を解除できた
+  - 新しいメモリマネージャーを有効にすると、フリーズしなくてもどのスレッドからでもすべてのオブジェクトとプロパティにアクセスできる(1部例外あり)
   - コアライブラリを新しいメモリマネージャー（stdlib、kotlinx.coroutines、Ktorクライアント）に適合させました。
-  - さらに、新しいメモリマネージャーの一部として、デフォルトでmimallocアロケーターを有効にし（1.6.20以降）、最上位プロパティの遅延初期化を導入しました（KT-46771）。
+  - 新しいメモリマネージャーの一部として、デフォルトで[mimalloc allocator](https://github.com/microsoft/mimalloc)を有効にし（1.6.20以降）、最上位プロパティの遅延初期化を導入しました（KT-46771）。
+    - -Xallocator=mimallocをつけよう
   - 新しいメモリマネージャーの開発プレビューは、Kotlin 1.6.0（1.6.0-M1以降）のオプションとして利用できます。詳細については、ブログ投稿を参照してください。
   - 次のステップは、新しいメモリマネージャをAlphaKT-49520に昇格させることです。
   - gcのalgorighmはsingle thread stop the world weap algorithmになった
@@ -179,9 +183,16 @@ Platform.isMemoryLeakCheckerActive = true
   - sampleがある[Repository](https://github.com/Kotlin/kmm-production-sample/tree/new-mm-demo)
   - hands onも更新されてる [リンク](https://github.com/kotlin-hands-on/KNConcurrencyHandson/tree/new-mm-demo)
   - freeze
-  - 同時マークスイープ等のさらに効率的なアルゴリズムも検討している
+  - concurrent mark-sweep等のさらに効率的なアルゴリズムも検討している
   - gradle.propetiesに*kotlin.native.binary.memoryModel=experimental*を追加すると使える
 - [Migration Guide](https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md)
+  - トップレベルプロパティに`@SharedImmutable`を付与しなくてもプロパティにアクセスして変更できるようになった
+  - スレッドを跨いだオブジェクト操作の際に`freeze`しなくてよくなった
+  - `Worker.executeAfter`は操作の`freeze`が不要になった
+  - `Worker.execute`はproducerがisolateなオブジェクトのサブグラフを返す必要がなくなった
+  - `AtomicReference`, `FreezableAtomicReference`の参照サイクルがメモリーリークを起こさなくなった
+
+
 - [Concurrencyの現状](https://kotlinlang.org/docs/kmm-concurrency-overview.html)
 
 ```
