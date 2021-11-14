@@ -52,10 +52,10 @@ kotlin {
                 api("io.github.aakira:napier:2.1.0")
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-new-mm-dev2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-                implementation("io.ktor:ktor-client-core:1.6.2-native-mm-eap-196")
-                implementation("io.ktor:ktor-client-logging:1.6.2-native-mm-eap-196")
-                implementation("io.ktor:ktor-client-json:1.6.2-native-mm-eap-196")
-                implementation("io.ktor:ktor-client-serialization:1.6.2-native-mm-eap-196")
+                implementation("io.ktor:ktor-client-core:1.6.4")
+                implementation("io.ktor:ktor-client-logging:1.6.4")
+                implementation("io.ktor:ktor-client-json:1.6.4")
+                implementation("io.ktor:ktor-client-serialization:1.6.4")
             }
         }
         val commonTest by getting {
@@ -68,7 +68,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1-new-mm-dev2")
-                implementation("io.ktor:ktor-client-okhttp:1.6.2-native-mm-eap-196")
+                implementation("io.ktor:ktor-client-okhttp:1.6.4")
             }
         }
         val androidTest by getting {
@@ -81,7 +81,7 @@ kotlin {
         }
         val iosMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-ios:1.6.2-native-mm-eap-196")
+                implementation("io.ktor:ktor-client-ios:1.6.4")
             }
         }
         val iosTest by getting
