@@ -264,7 +264,7 @@ Platform.isMemoryLeakCheckerActive = true
 - [Concurrencyの現状](https://kotlinlang.org/docs/kmm-concurrency-overview.html)
 
 ```
-Garbage collection and reference counting﻿
+Garbage collection and reference counting
 Objective-C and Swift use reference counting. Kotlin/Native has its own garbage collection too. Kotlin/Native garbage collection is integrated with Objective-C/Swift reference counting. You do not need to use anything special to control the lifetime of Kotlin/Native instances from Swift or Objective-C.
 ```
 
