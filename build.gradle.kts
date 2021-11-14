@@ -17,6 +17,12 @@ allprojects {
         google()
         mavenCentral()
         jcenter()
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven")
+        }
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
+        }
     }
 }
 
