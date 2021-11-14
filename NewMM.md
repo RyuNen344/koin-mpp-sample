@@ -262,6 +262,29 @@ Platform.isMemoryLeakCheckerActive = true
     - 'ensureNeverFrozen'は結局いつでもお友達
 
 - [Concurrencyの現状](https://kotlinlang.org/docs/kmm-concurrency-overview.html)
+- GCを手動で走らせる
+  - kotlin.native.internal.Cleaner.kt内にメソッドが生えている
+  - Cleanerっていうinterfaceが生えていてこちらはdeinitみたいな仕組みを提供する
+    ```kotlin
+    class LeakingResourceWrapper {
+        private val resource = Resource()
+        // deallocatedになるタイミングでlambda内の処理が実行される
+        private val cleaner = createCleaner(this) { it.resource.dispose() }
+    }
+    ```
+  - 👇のメソッドが生えているのでそれを使うのがおすすめ
+    ```kotlin
+    /**
+     * Perform GC on a worker that executes Cleaner blocks.
+    */
+    @InternalForKotlinNative
+    fun performGCOnCleanerWorker() =
+        getCleanerWorker().execute(TransferMode.SAFE, {}) {
+            GC.collect()
+        }.result
+    ```
+  - [kotlin.native.internal.GC.kt](https://github.com/JetBrains/kotlin/blob/1be39cb50516b7a48833e0ba263d15ab7f7e56c6/kotlin-native/runtime/src/main/kotlin/kotlin/native/internal/GC.kt)っていうobjectがある
+    - 基本的にGCを操作する際はこのobjectのプロパティ、メソッドを触る
 
 ```
 Garbage collection and reference counting
