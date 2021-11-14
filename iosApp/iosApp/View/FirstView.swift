@@ -7,6 +7,7 @@ struct FirstView: View {
     
     var body: some View {
         VStack {
+            Text(groupList.count.description)
             List {
                 ForEach(groupList, id: \.self) { group in
                     VStack {
