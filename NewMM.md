@@ -259,6 +259,7 @@ Platform.isMemoryLeakCheckerActive = true
             }
           }
           ```
+    - 'ensureNeverFrozen'は結局いつでもお友達
 
 - [Concurrencyの現状](https://kotlinlang.org/docs/kmm-concurrency-overview.html)
 
