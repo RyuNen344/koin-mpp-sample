@@ -32,7 +32,7 @@ kotlin {
             transitiveExport = true
             export("io.insert-koin:koin-core:3.1.3")
             export("io.github.aakira:napier:2.1.0")
-            export("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
+            export("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1-new-mm-dev2")
 
             embedBitcode(BITCODE)
         }
@@ -84,6 +84,11 @@ kotlin {
     targets.withType<KotlinNativeTarget> {
         // export KDoc
         compilations["main"].kotlinOptions.freeCompilerArgs += "-Xexport-kdoc"
+
+        // logging gc
+        binaries.all {
+            freeCompilerArgs += "-Xruntime-logs=gc=info"
+        }
     }
 }
 
