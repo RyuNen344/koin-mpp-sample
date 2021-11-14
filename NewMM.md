@@ -284,7 +284,7 @@ Platform.isMemoryLeakCheckerActive = true
         }.result
     ```
   - [kotlin.native.internal.GC.kt](https://github.com/JetBrains/kotlin/blob/1be39cb50516b7a48833e0ba263d15ab7f7e56c6/kotlin-native/runtime/src/main/kotlin/kotlin/native/internal/GC.kt)っていうobjectがある
-    - 基本的にGCを操作する際はこのobjectのプロパティ、メソッドを触る
+    - 基本的にGCを操作する際はこのobjectのプロパティ、メソッドを触る(GC自体はkotlin nativeが管理してくれるのでどうしてもGCを自分でキックしたい場合のみというのは前提)
 
 ```
 Garbage collection and reference counting
