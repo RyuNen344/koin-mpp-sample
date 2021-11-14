@@ -9,7 +9,7 @@ class iOSApp: App {
     required init() {
         // init Napier
         NapierExtKt.debugBuild()
-
+        GarbageCollectorKt.performGCOnCleanerWorker()
         // init DI Container
         koinApplication = KoinExtKt.doInitKoin()
 
@@ -17,10 +17,10 @@ class iOSApp: App {
         ViewModelFactory.shared.initialize(koinApplication: koinApplication)
 
         // 3回instanceを生成してscoped instanceのhashを表示させる
-        printScopedInstance()
+        // printScopedInstance()
 
         // qualifierを使用して一意のinstanceのhashを表示させる
-        printQualifiedInstance()
+        // printQualifiedInstance()
 
         /**
          DEBUG 8   iosApp                              0x0000000103e1d245  - scoped start

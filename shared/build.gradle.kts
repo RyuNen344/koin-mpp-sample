@@ -40,6 +40,12 @@ kotlin {
     }
 
     sourceSets {
+
+        all {
+            languageSettings.optIn("kotlin.ExperimentalStdlibApi")
+            languageSettings.optIn("kotlin.native.internal.InternalForKotlinNative")
+        }
+
         val commonMain by getting {
             dependencies {
                 api("io.insert-koin:koin-core:3.1.3")

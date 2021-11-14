@@ -19,6 +19,10 @@ internal class SettingsRepositoryImpl(
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
     override fun getSystemInfo() : String {
+        return platform.osName + platform.osVersion
+    }
+
+    fun hoge() {
         scope.launch {
             runCatching {
                 connpassApi.getEvents()
@@ -28,7 +32,5 @@ internal class SettingsRepositoryImpl(
                 Napier.e("failed", it)
             }
         }
-
-        return platform.osName + platform.osVersion
     }
 }

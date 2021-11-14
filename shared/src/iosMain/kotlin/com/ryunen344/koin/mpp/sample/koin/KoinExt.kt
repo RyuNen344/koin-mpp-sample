@@ -17,11 +17,10 @@ import org.koin.core.qualifier.Qualifier
 import org.koin.core.qualifier.StringQualifier
 import org.koin.core.qualifier.TypeQualifier
 
-@OptIn(ExperimentalStdlibApi::class)
 @Suppress("UNUSED")
 fun initKoin() : KoinApplication {
-        println("isExperimentalMM ${isExperimentalMM()}")
-        return startKoin {
+    println("isExperimentalMM ${isExperimentalMM()}")
+    return startKoin {
         napierLogger()
         modules(
             apiModule,
