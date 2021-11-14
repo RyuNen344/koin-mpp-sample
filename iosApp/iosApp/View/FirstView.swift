@@ -17,13 +17,24 @@ struct FirstView: View {
                 }
             }
             Button(action: {
-                DataGeneratorKt.createGroupListInBackGround { (list, error) in
-                    guard let groups = list else {return}
-                    groupList += groups
-                }
+                updateListAsync()
+//                updateListBackground()
             }, label: {
                 Text("Generate instance")
             })
+        }
+    }
+    
+    private func updateListAsync() {
+        DispatchQueue.main.async {
+            groupList += DataGeneratorKt.createGroupList()
+        }
+    }
+    
+    private func updateListBackground() {
+        DataGeneratorKt.createGroupListInBackGround { (result, error) in
+            guard let groups = result else {return}
+            groupList += groups
         }
     }
 }
