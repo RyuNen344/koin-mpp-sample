@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework.BitcodeEmbeddingMode.BITCODE
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -27,6 +27,14 @@ kotlin {
         ios.deploymentTarget = "14.2"
         framework {
             baseName = "shared"
+
+            // Configure the framework which is generated internally by cocoapods plugin
+            transitiveExport = true
+            export("io.insert-koin:koin-core:3.1.3")
+            export("io.github.aakira:napier:2.1.0")
+            export("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
+
+            embedBitcode(BITCODE)
         }
         podfile = project.file("../iosApp/Podfile")
     }
@@ -73,13 +81,9 @@ kotlin {
         val iosTest by getting
     }
 
-    // Configure the framework which is generated internally by cocoapods plugin
     targets.withType<KotlinNativeTarget> {
-        binaries.withType<Framework> {
-            export("io.insert-koin:koin-core:3.1.3")
-            export("io.github.aakira:napier:2.1.0")
-            export("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
-        }
+        // export KDoc
+        compilations["main"].kotlinOptions.freeCompilerArgs += "-Xexport-kdoc"
     }
 }
 
