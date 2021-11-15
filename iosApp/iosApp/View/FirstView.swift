@@ -18,8 +18,8 @@ struct FirstView: View {
                 }
             }
             Button(action: {
-                updateListAsync()
-//                updateListBackground()
+//                updateListAsync()
+                updateListBackground()
             }, label: {
                 Text("Generate instance")
             })
