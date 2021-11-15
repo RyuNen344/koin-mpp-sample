@@ -10,14 +10,6 @@ struct RootView: View {
                         // NOTE: Labelを指定すると遷移先へのリンクが自動的に生成される
                         Text("Move to FirstView")
                     }
-                    NavigationLink(destination: SecondView()) {
-                        // NOTE: Labelを指定すると遷移先へのリンクが自動的に生成される
-                        Text("Move to SecondView")
-                    }
-                    NavigationLink(destination: ThirdView()) {
-                        // NOTE: Labelを指定すると遷移先へのリンクが自動的に生成される
-                        Text("Move to ThirdView")
-                    }
                 }
             }
             Button(action: {
