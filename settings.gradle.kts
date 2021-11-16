@@ -4,11 +4,13 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         jcenter()
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven")
+        }
+        maven {
+            url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
+        }
     }
-}
-
-plugins {
-    id("com.louiscad.complete-kotlin") version "1.0.0"
 }
 
 rootProject.name = "KoinMppSample"

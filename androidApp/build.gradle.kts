@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 31
     defaultConfig {
         applicationId = "com.ryunen344.koin.mpp.sample.android"
-        minSdkVersion(29)
-        targetSdkVersion(30)
+        minSdk = 29
+        targetSdk = 31
         versionCode = 1
         versionName = "1.0"
     }
@@ -21,8 +21,8 @@ android {
 
 dependencies {
     implementation(project(":shared"))
-    implementation("io.insert-koin:koin-android:3.1.2")
+    implementation("io.insert-koin:koin-android:3.1.3")
     implementation("com.google.android.material:material:1.4.0")
-    implementation("androidx.appcompat:appcompat:1.3.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.0.4")
+    implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.1")
 }

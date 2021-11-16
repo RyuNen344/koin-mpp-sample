@@ -19,6 +19,7 @@ import org.koin.core.qualifier.TypeQualifier
 
 @Suppress("UNUSED")
 fun initKoin() : KoinApplication {
+    println("isExperimentalMM ${isExperimentalMM()}")
     return startKoin {
         napierLogger()
         modules(

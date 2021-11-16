@@ -6,5 +6,5 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val repositoryModule = module {
-    single { SettingsRepositoryImpl(get()) } bind SettingsRepository::class
+    single { SettingsRepositoryImpl(get(), get()) } bind SettingsRepository::class
 }
